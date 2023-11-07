@@ -38,7 +38,7 @@ describe('Business logic: Member: List by club', () => {
         }
     ]
 
-    it('should return a list of members by club ', async() => {
+    it('Should return a list of members by club ', async() => {
         MemberModel.find.mockReturnValue(members);
 
         checkIfUserIsAdmin.mockReturnValue();
