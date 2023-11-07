@@ -14,7 +14,7 @@ async function getOne({ query, select, populate }) {
     getUserQuery.select(select.join(' '));
   }
   if (populate && populate.length) {
-    getUserQuery.poulate(populate.join(' '));
+    getUserQuery.populate(populate.join(' '));
   }
 
   const user = await getUserQuery;
