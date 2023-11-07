@@ -5,14 +5,50 @@ import checkIfUserIsAdmin from '../../../src/business-logic/club/check-is-admin'
 import memberErrors from '../../../src/errors/member.errors';
 import HTTPError from '../../../src/errors/http.error';
 import checkClubExists from '../../../src/utils/check-club-exists.util';
+import UsersLogic from '../../../src/business-logic/users';
+import mongoose from 'mongoose';
+
 
 jest.mock('../../../src/business-logic/club/check-is-admin');
 jest.mock('../../../src/models/member/member.model');
 jest.mock('../../../src/utils/check-club-exists.util');
+jest.mock('../../../src/business-logic/users');
 
 describe('Business logic: Member: Create', () => {
   afterEach(async () => {
     jest.resetAllMocks();
+  });
+
+  const createObjectId = () => new mongoose.Types.ObjectId();
+
+
+  it('Should create a member on database', async () => {
+    const adminId = createObjectId();  
+    UsersLogic.getOne.mockReturnValue({ _id: adminId });
+    
+    MemberModel.create.mockReturnValue({ 
+      name: 'Juan',
+      email: 'email@email.com',
+      dni:'123143546',
+      nickname:'Juanito',
+      clubId:'1',
+      userId: adminId
+    });
+
+    checkClubExists.mockReturnValue();
+    checkIfUserIsAdmin.mockReturnValue();
+
+    const result = await create({clubId:'1', userId: adminId});
+
+    expect(result.name).toBe('Juan');
+    expect(result.email).toBe('email@email.com');
+    expect(result.dni).toBe('123143546');
+    expect(result.nickname).toBe('Juanito');
+    expect(result.clubId).toBe("1");
+    expect(result.userId).toBe(adminId);
+
+    expect(checkClubExists).toHaveBeenCalledWith({ clubId: "1" , errorObject: expect.any(HTTPError) });
+    expect(checkIfUserIsAdmin).toHaveBeenCalledWith({ clubId: "1", userId: adminId });
   });
 
   it('Should throws an error when the club doesnt exists', async () => {
